@@ -1,0 +1,45 @@
+{
+  "version": 1,
+  "jobs": [
+    {
+      "id": "__JOB_ID_DAILY_MEMORY__",
+      "agentId": "orquestrador",
+      "name": "Daily Memory Rollup",
+      "enabled": false,
+      "schedule": {
+        "kind": "cron",
+        "expr": "45 23 * * *",
+        "tz": "America/Sao_Paulo"
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "systemEvent",
+        "text": "[REMINDER] Revise o dia, compacte memoria operacional, identifique pendencias e proponha prioridades para amanha."
+      },
+      "delivery": {
+        "mode": "none"
+      }
+    },
+    {
+      "id": "__JOB_ID_QUEUE_WATCH__",
+      "agentId": "orquestrador",
+      "name": "Queue Reconciliation Watch",
+      "enabled": false,
+      "schedule": {
+        "kind": "every",
+        "everyMs": 900000
+      },
+      "sessionTarget": "isolated",
+      "wakeMode": "now",
+      "payload": {
+        "kind": "agentTurn",
+        "message": "Verifique se existem tasks pendentes, falhas de delivery ou itens presos em filas operacionais. Se nao houver acao necessaria, responda exatamente NO_REPLY.",
+        "timeoutSeconds": 30
+      },
+      "delivery": {
+        "mode": "none"
+      }
+    }
+  ]
+}

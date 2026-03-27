@@ -1,0 +1,256 @@
+{
+  "meta": {
+    "lastTouchedVersion": "2026.3.24"
+  },
+  "env": {
+    "OPENAI_API_KEY": "__ENV_OPENAI_API_KEY__",
+    "OPENROUTER_API_KEY": "__ENV_OPENROUTER_API_KEY__",
+    "GEMINI_API_KEY": "__ENV_GEMINI_API_KEY__"
+  },
+  "agents": {
+    "defaults": {
+      "model": {
+        "primary": "openrouter/xiaomi/mimo-v2-pro",
+        "fallbacks": [
+          "openai/gpt-5.4",
+          "openrouter/qwen/qwen3-30b-a3b-thinking-2507",
+          "openrouter/deepseek/deepseek-v3.2",
+          "google/gemini-3.1-flash-lite-preview"
+        ]
+      },
+      "models": {
+        "openrouter/xiaomi/mimo-v2-pro": {
+          "alias": "mimo",
+          "params": {
+            "maxTokens": 3072,
+            "contextWindow": 1048576
+          }
+        },
+        "openai/gpt-5.4": {
+          "alias": "gpt54",
+          "params": {
+            "maxTokens": 4096,
+            "contextWindow": 1048576
+          }
+        },
+        "openrouter/qwen/qwen3-30b-a3b-thinking-2507": {
+          "alias": "qwen3-thinking",
+          "params": {
+            "maxTokens": 3072,
+            "contextWindow": 131072
+          }
+        },
+        "openrouter/deepseek/deepseek-v3.2": {
+          "alias": "deepseek-v3",
+          "params": {
+            "maxTokens": 3072,
+            "contextWindow": 163840
+          }
+        },
+        "google/gemini-3.1-flash-lite-preview": {
+          "alias": "gemini31-lite",
+          "params": {
+            "maxTokens": 4096,
+            "contextWindow": 1048576
+          }
+        }
+      },
+      "workspace": "~/.openclaw/workspace-hq",
+      "memorySearch": {
+        "extraPaths": [
+          "obsidian-vault"
+        ]
+      },
+      "compaction": {
+        "mode": "safeguard",
+        "reserveTokensFloor": 24000,
+        "memoryFlush": {
+          "enabled": true,
+          "softThresholdTokens": 12000
+        }
+      },
+      "maxConcurrent": 3,
+      "subagents": {
+        "maxConcurrent": 2,
+        "archiveAfterMinutes": 20
+      }
+    },
+    "list": [
+      {
+        "id": "hq",
+        "default": true,
+        "name": "__DISPLAY_NAME__ HQ",
+        "workspace": "~/.openclaw/workspace-hq",
+        "agentDir": "~/.openclaw/agents/hq/agent",
+        "model": "openrouter/xiaomi/mimo-v2-pro",
+        "subagents": {
+          "allowAgents": [
+            "orquestrador",
+            "dev",
+            "ops",
+            "sales"
+          ]
+        }
+      },
+      {
+        "id": "orquestrador",
+        "name": "__DISPLAY_NAME__ Orquestrador",
+        "workspace": "~/.openclaw/workspace-orquestrador",
+        "agentDir": "~/.openclaw/agents/orquestrador/agent",
+        "model": "openrouter/qwen/qwen3-30b-a3b-thinking-2507"
+      },
+      {
+        "id": "dev",
+        "name": "__DISPLAY_NAME__ Dev",
+        "workspace": "~/.openclaw/workspace-dev",
+        "agentDir": "~/.openclaw/agents/dev/agent",
+        "model": "openrouter/xiaomi/mimo-v2-pro"
+      },
+      {
+        "id": "ops",
+        "name": "__DISPLAY_NAME__ Ops",
+        "workspace": "~/.openclaw/workspace-ops",
+        "agentDir": "~/.openclaw/agents/ops/agent",
+        "model": "openrouter/deepseek/deepseek-v3.2"
+      },
+      {
+        "id": "sales",
+        "name": "__DISPLAY_NAME__ Sales",
+        "workspace": "~/.openclaw/workspace-sales",
+        "agentDir": "~/.openclaw/agents/sales/agent"
+      }
+    ]
+  },
+  "bindings": [
+    {
+      "agentId": "hq",
+      "match": {
+        "channel": "whatsapp",
+        "accountId": "__ACCOUNT_ID__"
+      }
+    },
+    {
+      "agentId": "hq",
+      "match": {
+        "channel": "webchat"
+      }
+    }
+  ],
+  "messages": {
+    "queue": {
+      "mode": "followup",
+      "byChannel": {
+        "whatsapp": "followup"
+      },
+      "debounceMs": 4200,
+      "cap": 2,
+      "drop": "summarize"
+    }
+  },
+  "commands": {
+    "native": "auto",
+    "nativeSkills": "auto",
+    "restart": false,
+    "ownerDisplay": "raw"
+  },
+  "session": {
+    "dmScope": "per-channel-peer"
+  },
+  "channels": {
+    "whatsapp": {
+      "enabled": true,
+      "sendReadReceipts": true,
+      "dmPolicy": "allowlist",
+      "allowFrom": [
+        "*"
+      ],
+      "groupAllowFrom": [
+        "*"
+      ],
+      "groupPolicy": "allowlist",
+      "textChunkLimit": 3200,
+      "chunkMode": "newline",
+      "groups": {
+        "*": {
+          "requireMention": true
+        }
+      },
+      "ackReaction": {
+        "emoji": "",
+        "direct": true,
+        "group": "mentions"
+      },
+      "debounceMs": 4200,
+      "accounts": {
+        "__ACCOUNT_ID__": {
+          "enabled": true,
+          "name": "__DISPLAY_NAME__",
+          "authDir": "/home/node/.openclaw/credentials/whatsapp/__ACCOUNT_ID__",
+          "dmPolicy": "allowlist",
+          "groupPolicy": "allowlist",
+          "sendReadReceipts": true,
+          "allowFrom": [
+            "*"
+          ],
+          "groupAllowFrom": [
+            "*"
+          ],
+          "groups": {
+            "*": {
+              "requireMention": true
+            }
+          },
+          "ackReaction": {
+            "emoji": "",
+            "direct": true,
+            "group": "mentions"
+          },
+          "debounceMs": 4200
+        }
+      },
+      "defaultAccount": "__ACCOUNT_ID__",
+      "mediaMaxMb": 50
+    }
+  },
+  "gateway": {
+    "mode": "local",
+    "bind": "lan",
+    "controlUi": {
+      "allowedOrigins": [
+        "__ALLOWED_ORIGIN__"
+      ],
+      "dangerouslyAllowHostHeaderOriginFallback": false
+    },
+    "auth": {
+      "mode": "token",
+      "token": "__GATEWAY_TOKEN__"
+    }
+  },
+  "skills": {
+    "allowBundled": [
+      "gemini",
+      "healthcheck",
+      "file-operations",
+      "web-search",
+      "summarize",
+      "weather",
+      "video-frames",
+      "openai-whisper",
+      "openai-whisper-api",
+      "code-execution",
+      "automation",
+      "playwright",
+      "github",
+      "model-usage"
+    ],
+    "entries": {
+      "gemini": {
+        "apiKey": {
+          "source": "env",
+          "provider": "default",
+          "id": "GEMINI_API_KEY"
+        }
+      }
+    }
+  }
+}
